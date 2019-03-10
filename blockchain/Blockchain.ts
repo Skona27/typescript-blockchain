@@ -5,7 +5,6 @@ import {ITransaction, Transaction} from "./Transaction";
 export interface IBlockchain {
   getData(): IBlock[];
   verify(): boolean;
-  mineBlock(data: ITransaction): this;
   getLastBlock(): IBlock;
   getBalance(user: IUser): number;
   addTransaction(transaction: ITransaction): this;
@@ -15,10 +14,14 @@ export class Blockchain implements IBlockchain {
   private readonly chain: Block[] = [];
   private pendingTransactions: Transaction[] = [];
   private readonly difficulty: number;
+  private readonly updateTime: number;
 
-  constructor(difficulty: number = 4) {
+  constructor(difficulty: number = 4, updateTime: number = 5) {
     this.chain.push(Blockchain.createGenesisBlock());
     this.difficulty = difficulty;
+    this.updateTime = updateTime;
+
+    setInterval(() => this.mineBlock(), this.updateTime * 1000);
   }
 
   private static createGenesisBlock() {
@@ -29,16 +32,16 @@ export class Blockchain implements IBlockchain {
     return this.chain[this.chain.length - 1];
   };
 
-  mineBlock() {
-    const previousHash = this.getLastBlock().getHash();
-    const block = new Block(this.pendingTransactions, previousHash);
+  private mineBlock() {
+    if (this.pendingTransactions.length)  {
+      const previousHash = this.getLastBlock().getHash();
+      const block = new Block(this.pendingTransactions, previousHash);
 
-    block.mine(this.difficulty);
-    this.chain.push(block);
+      block.mine(this.difficulty);
+      this.chain.push(block);
 
-    this.pendingTransactions = [];
-
-    return this;
+      this.pendingTransactions = [];
+    }
   }
 
   addTransaction(transaction: Transaction) {
