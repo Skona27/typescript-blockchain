@@ -45,8 +45,7 @@ export class Blockchain implements IBlockchain {
   }
 
   addTransaction(transaction: Transaction) {
-    if (transaction.isAmountOnBalance())
-      this.pendingTransactions.push(transaction);
+    this.pendingTransactions.push(transaction);
 
     return this;
   }
@@ -75,15 +74,14 @@ export class Blockchain implements IBlockchain {
 
     for (const block of this.chain) {
       for (const transaction of block.getTransactions()) {
-        if (user === transaction.getSender())
+        if (user.getName() === transaction.getSender())
           balance -= transaction.getAmount();
 
-        if (user === transaction.getRecipient())
+        if (user.getName() === transaction.getRecipient())
           balance += transaction.getAmount();
       }
     }
 
-    user.setBalance(balance);
     return balance;
   }
 }

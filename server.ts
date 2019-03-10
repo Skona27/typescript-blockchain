@@ -12,8 +12,11 @@ const port: string = process.env.PORT || '3000';
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const blockchain: Blockchain = new Blockchain(2, 1);
-const users: User[] = [];
+const blockchain: Blockchain = new Blockchain(2, 10);
+const users: User[] = [
+  new User("Kuba", 1000),
+  new User("Justyna", 1000)
+];
 
 app.get('/', (req: Request, res: Response) => {
   res.json(blockchain.getData());
@@ -21,11 +24,16 @@ app.get('/', (req: Request, res: Response) => {
 
 app.post('/user', (req: Request, res: Response) => {
   const {name, balance} = req.body;
+  let user;
 
-  if (!users.some(user => user.getName() === name))
-    users.push(new User(name, balance));
+  if (!users.some(user => user.getName() === name)) {
+    user = new User(name, balance);
+    users.push(user);
+  } else {
+    user = users.find(user => user.getName() === name);
+  }
 
-  res.json({name, balance});
+  res.json(user);
 });
 
 app.post('/transaction', (req: Request, res: Response) => {
@@ -35,11 +43,24 @@ app.post('/transaction', (req: Request, res: Response) => {
   const recipientUser = users.find(user => user.getName() === recipient);
 
   if (senderUser && recipientUser) {
-    const transaction = new Transaction(senderUser, recipientUser, amount);
+    const transaction = new Transaction(sender, recipient, amount);
     blockchain.addTransaction(transaction);
-  }
 
-  res.json({text: 'Pending...'});
+    res.json({text: 'Transaction pending...'});
+  } else {
+    res.json({text: 'Invalid data.'});
+  }
+});
+
+app.get('/user/:username', (req: Request, res: Response) => {
+  const user = users.find(user => user.getName() === req.params.username);
+
+  if (!user)
+    res.json("No user.");
+  else {
+    const balance = blockchain.getBalance(user);
+    res.json({...user, balance });
+  }
 });
 
 app.listen(port, () => {

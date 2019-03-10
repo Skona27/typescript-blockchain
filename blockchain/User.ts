@@ -1,7 +1,7 @@
 export interface IUser {
   getBalance(): number;
-  setBalance(balance: number): this;
   getName(): string;
+  isAmountOnBalance(amount: number): boolean;
 }
 
 export class User implements IUser {
@@ -21,8 +21,7 @@ export class User implements IUser {
     return this.balance;
   }
 
-  setBalance(balance: number) {
-    this.balance = balance;
-    return this;
+  isAmountOnBalance(amount: number) {
+    return this.balance >= amount;
   }
 }
