@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node server.js",
-    "tsc": "tsc",
+    "dev": "nodemon server.js",
+    "tsc": "tsc -w",
     "start": "npm run tsc | npm run dev"
   },
   "dependencies": {

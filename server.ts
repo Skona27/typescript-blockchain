@@ -44,9 +44,13 @@ app.post('/transaction', (req: Request, res: Response) => {
 
   if (senderUser && recipientUser) {
     const transaction = new Transaction(sender, recipient, amount);
-    blockchain.addTransaction(transaction);
+    const balance = blockchain.getBalance(senderUser);
 
-    res.json({text: 'Transaction pending...'});
+    if (balance >= amount) {
+      blockchain.addTransaction(transaction);
+      res.json({text: 'Transaction pending...'});
+    } else
+        res.json({text: 'Insufficient funds on account.'});
   } else {
     res.json({text: 'Invalid data.'});
   }

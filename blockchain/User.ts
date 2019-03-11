@@ -6,7 +6,7 @@ export interface IUser {
 
 export class User implements IUser {
   private readonly name: string;
-  private balance: number;
+  private readonly balance: number;
 
   constructor (name: string, balance: number = 0) {
     this.name = name;
